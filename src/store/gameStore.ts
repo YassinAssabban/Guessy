@@ -16,10 +16,12 @@ const context = createGameContext();
 type GameStore = GameSnapshot & {
   totalCountries: number;
   lastAcceptedCountry: string | null;
+  showMissingCountries: boolean;
   start: () => void;
   submit: (guess: string) => boolean;
   tickTimer: () => void;
   revealAll: () => void;
+  revealMissingCountries: () => void;
   reset: () => void;
 };
 
@@ -29,7 +31,8 @@ export const useGameStore = create<GameStore>((set) => ({
   ...initialSnapshot,
   totalCountries: TOTAL_COUNTRIES,
   lastAcceptedCountry: null,
-  start: () => set((state) => ({ ...startGame(state), lastAcceptedCountry: null })),
+  showMissingCountries: false,
+  start: () => set((state) => ({ ...startGame(state), lastAcceptedCountry: null, showMissingCountries: false })),
   submit: (guess) => {
     let accepted = false;
 
@@ -46,12 +49,14 @@ export const useGameStore = create<GameStore>((set) => ({
     return accepted;
   },
   tickTimer: () => set((state) => tick(state)),
-  revealAll: () => set((state) => giveUp(state)),
+  revealAll: () => set((state) => ({ ...giveUp(state), showMissingCountries: false })),
+  revealMissingCountries: () => set(() => ({ showMissingCountries: true })),
   reset: () =>
     set(() => ({
       ...createInitialSnapshot(),
       totalCountries: TOTAL_COUNTRIES,
-      lastAcceptedCountry: null
+      lastAcceptedCountry: null,
+      showMissingCountries: false
     }))
 }));
 

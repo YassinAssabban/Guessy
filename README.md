@@ -49,11 +49,6 @@ The quiz now contains **196 entries**:
 - Palestine
 - Vatican City
 - Kosovo
-- Score and progress tracking (`x/193`)
-- 15-minute countdown timer
-- Interactive world map with found countries highlighted
-- Give up button to reveal all countries
-- Reset flow to start over quickly
 
 ## Run locally
 

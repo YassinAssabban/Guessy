@@ -18,6 +18,8 @@ export const Game = () => {
     tickTimer,
     revealAll,
     reset,
+    revealMissingCountries,
+    showMissingCountries,
     lastAcceptedCountry
   } = useGameStore();
 
@@ -61,6 +63,11 @@ export const Game = () => {
             Reset
           </button>
         </div>
+          {hasEnded && !showMissingCountries && (
+            <button className="secondary" onClick={revealMissingCountries}>
+              Afficher les pays non trouvés
+            </button>
+          )}
         <p className="feedback">
           {lastAcceptedCountry ? `✅ ${lastAcceptedCountry} accepted` : 'Start typing to guess countries.'}
         </p>
@@ -68,7 +75,11 @@ export const Game = () => {
         {status === 'gave_up' && <p className="feedback">🏳️ All countries have been revealed.</p>}
       </section>
 
-      <Map foundCountries={foundCountries} />
+      <Map
+        foundCountries={foundCountries}
+        hasEnded={hasEnded}
+        showMissingCountries={showMissingCountries}
+      />
     </main>
   );
 };
