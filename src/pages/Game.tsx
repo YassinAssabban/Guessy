@@ -43,6 +43,7 @@ export const Game = () => {
     <main className="game-page">
       <header className="header">
         <h1>Countries of the World Quiz</h1>
+        <p>Type as many countries as possible before the timer ends.</p>
         <p>Type every UN member state before the timer ends.</p>
       </header>
 
