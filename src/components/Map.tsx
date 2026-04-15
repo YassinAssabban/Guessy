@@ -1,8 +1,6 @@
 
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 import { createCountryLookup, normalizeCountryInput, resolveCountryName } from '../core/validator';
-import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
-import { createCountryLookup, resolveCountryName } from '../core/validator';
 
 
 type MapProps = {
@@ -108,10 +106,6 @@ const resolveMapCountry = (properties: MapFeatureProperties): string | null => {
   return resolveCountryName(label, lookup);
 };
 
-=======
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
-const lookup = createCountryLookup();
-
 
 export const Map = ({ foundCountries }: MapProps) => (
   <section className="card map-card">
@@ -122,12 +116,7 @@ export const Map = ({ foundCountries }: MapProps) => (
           {({ geographies }) =>
             geographies.map((geo) => {
               const canonicalName = resolveMapCountry(geo.properties as MapFeatureProperties);
-      <ComposableMap projectionConfig={{ scale: 155 }}>
-        <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
-            geographies.map((geo) => {
               const name = String(geo.properties.name ?? '');
-              const canonicalName = resolveCountryName(name, lookup);
               const isFound = canonicalName ? foundCountries.has(canonicalName) : false;
 
               return (
@@ -140,7 +129,6 @@ export const Map = ({ foundCountries }: MapProps) => (
                       outline: 'none',
                       stroke: '#94a3b8',
                       strokeWidth: 0.45
-                      strokeWidth: 0.5
                     },
                     hover: {
                       fill: isFound ? '#16a34a' : '#cbd5e1',
