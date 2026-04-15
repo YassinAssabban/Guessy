@@ -63,7 +63,7 @@ export const Game = () => {
             Reset
           </button>
         </div>
-          {hasEnded && !showMissingCountries && (
+          {hasEnded && foundCountries.size < totalCountries && !showMissingCountries && (
             <button className="secondary" onClick={revealMissingCountries}>
               Afficher les pays non trouvés
             </button>

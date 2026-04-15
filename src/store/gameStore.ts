@@ -48,8 +48,19 @@ export const useGameStore = create<GameStore>((set) => ({
 
     return accepted;
   },
-  tickTimer: () => set((state) => tick(state)),
-  revealAll: () => set((state) => ({ ...giveUp(state), showMissingCountries: false })),
+  tickTimer: () =>
+    set((state) => {
+      const nextSnapshot = tick(state);
+      const shouldRevealMissing =
+        nextSnapshot.status === 'completed' && nextSnapshot.foundCountries.size < TOTAL_COUNTRIES;
+
+      return {
+        ...nextSnapshot,
+        lastAcceptedCountry: state.lastAcceptedCountry,
+        showMissingCountries: shouldRevealMissing ? true : state.showMissingCountries
+      };
+    }),
+  revealAll: () => set((state) => ({ ...giveUp(state), showMissingCountries: true })),
   revealMissingCountries: () => set(() => ({ showMissingCountries: true })),
   reset: () =>
     set(() => ({

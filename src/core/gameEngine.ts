@@ -1,4 +1,4 @@
-import { TOTAL_COUNTRIES, countries } from './countries';
+import { TOTAL_COUNTRIES } from './countries';
 import { calculateProgressPercentage, calculateScore } from './scoring';
 import { createCountryLookup, type CountryLookup, validateCountryGuess } from './validator';
 
@@ -100,8 +100,7 @@ export const tick = (snapshot: GameSnapshot): GameSnapshot => {
 
 export const giveUp = (snapshot: GameSnapshot): GameSnapshot => ({
   ...snapshot,
-  foundCountries: new Set(countries.map((country) => country.name)),
-  score: TOTAL_COUNTRIES,
-  progress: 100,
+  score: calculateScore(snapshot.foundCountries.size),
+  progress: calculateProgressPercentage(snapshot.foundCountries.size),
   status: 'gave_up'
 });

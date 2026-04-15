@@ -36,7 +36,8 @@ const MAP_NAME_OVERRIDES: Record<string, string> = {
   [normalizeCountryInput('Dominican Rep.')]: 'Dominican Republic',
   [normalizeCountryInput('eSwatini')]: 'Eswatini',
   [normalizeCountryInput('Côte d’Ivoire')]: "Cote d'Ivoire",
-  [normalizeCountryInput('Cote d Ivoire')]: "Cote d'Ivoire"
+  [normalizeCountryInput('Cote d Ivoire')]: "Cote d'Ivoire",
+  [normalizeCountryInput('Greenland')]: 'Denmark'
 };
 
 const ISO_TO_COUNTRY: Record<string, string> = {
