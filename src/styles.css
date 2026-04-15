@@ -1,0 +1,138 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  line-height: 1.5;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.game-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.header p {
+  margin: 0.4rem 0 0;
+  color: #475569;
+}
+
+.top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+}
+
+.metric-card {
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.metric-subtext {
+  margin: 0.3rem 0 0;
+  color: #475569;
+}
+
+.controls-card {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.guess-input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+}
+
+input,
+button {
+  font: inherit;
+}
+
+input {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+button {
+  border: none;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.secondary {
+  background: #475569;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.feedback {
+  margin: 0;
+  color: #334155;
+}
+
+.map-card h2 {
+  margin-top: 0;
+}
+
+.map-container {
+  width: 100%;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+}
+
+svg {
+  width: 100%;
+  height: auto;
+  min-height: 420px;
+}
+
+@media (max-width: 900px) {
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guess-input {
+    grid-template-columns: 1fr;
+  }
+}
