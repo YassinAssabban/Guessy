@@ -1,9 +1,11 @@
+
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 import { createCountryLookup, normalizeCountryInput, resolveCountryName } from '../core/validator';
 
 type MapProps = {
   foundCountries: Set<string>;
 };
+
 
 type MapFeatureProperties = {
   NAME?: string;
@@ -21,7 +23,6 @@ type SmallCountryMarker = {
 };
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json';
-
 const lookup = createCountryLookup();
 
 const MAP_NAME_OVERRIDES: Record<string, string> = {
