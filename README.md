@@ -2,7 +2,6 @@
 
 A React + TypeScript quiz game inspired by JetPunk where players try to name all 196 countries in the quiz before the timer ends.
 
-
 ## Stack
 
 - React (hooks)
@@ -35,7 +34,6 @@ src/
 
 - Real-time country validation with aliases (`USA`, `United States`, etc.)
 - Duplicate prevention
-
 - Score and progress tracking (`x/196`)
 - 15-minute countdown timer
 - Improved world map coverage using a no-Antarctica dataset
@@ -51,8 +49,6 @@ The quiz now contains **196 entries**:
 - Palestine
 - Vatican City
 - Kosovo
-
-=======
 - Score and progress tracking (`x/193`)
 - 15-minute countdown timer
 - Interactive world map with found countries highlighted

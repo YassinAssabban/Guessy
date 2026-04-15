@@ -2,7 +2,6 @@
 import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 import { createCountryLookup, normalizeCountryInput, resolveCountryName } from '../core/validator';
 
-
 type MapProps = {
   foundCountries: Set<string>;
 };
@@ -23,9 +22,7 @@ type SmallCountryMarker = {
   coordinates: [number, number];
 };
 
-const GEO_URL =
-  'https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries-sans-antarctica.json';
-
+const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json';
 const lookup = createCountryLookup();
 
 const MAP_NAME_OVERRIDES: Record<string, string> = {
@@ -106,42 +103,46 @@ const resolveMapCountry = (properties: MapFeatureProperties): string | null => {
   return resolveCountryName(label, lookup);
 };
 
-
 export const Map = ({ foundCountries }: MapProps) => (
   <section className="card map-card">
     <h2>World Map</h2>
     <div className="map-container">
       <ComposableMap projectionConfig={{ scale: 150 }}>
         <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
-            geographies.map((geo) => {
-              const canonicalName = resolveMapCountry(geo.properties as MapFeatureProperties);
-              const name = String(geo.properties.name ?? '');
-              const isFound = canonicalName ? foundCountries.has(canonicalName) : false;
+          {({ geographies }: { geographies: any[] }) =>
+            geographies
+              .filter((geo: any) => {
+                const properties = geo.properties as MapFeatureProperties;
+                const label = properties.NAME_EN ?? properties.NAME ?? properties.ADMIN ?? properties.name;
+                return normalizeCountryInput(String(label ?? '')) !== 'antarctica';
+              })
+              .map((geo: any) => {
+                const canonicalName = resolveMapCountry(geo.properties as MapFeatureProperties);
+                const isFound = canonicalName ? foundCountries.has(canonicalName) : false;
 
-              return (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  style={{
-                    default: {
-                      fill: isFound ? '#22c55e' : '#e2e8f0',
-                      outline: 'none',
-                      stroke: '#94a3b8',
-                      strokeWidth: 0.45
-                    },
-                    hover: {
-                      fill: isFound ? '#16a34a' : '#cbd5e1',
-                      outline: 'none'
-                    },
-                    pressed: {
-                      fill: isFound ? '#15803d' : '#94a3b8',
-                      outline: 'none'
-                    }
-                  }}
-                />
-              );
-            })
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    style={{
+                      default: {
+                        fill: isFound ? '#22c55e' : '#e2e8f0',
+                        outline: 'none',
+                        stroke: '#94a3b8',
+                        strokeWidth: 0.45
+                      },
+                      hover: {
+                        fill: isFound ? '#16a34a' : '#cbd5e1',
+                        outline: 'none'
+                      },
+                      pressed: {
+                        fill: isFound ? '#15803d' : '#94a3b8',
+                        outline: 'none'
+                      }
+                    }}
+                  />
+                );
+              })
           }
         </Geographies>
 
@@ -159,7 +160,6 @@ export const Map = ({ foundCountries }: MapProps) => (
             </Marker>
           );
         })}
-
       </ComposableMap>
     </div>
   </section>
