@@ -109,7 +109,14 @@ export const Map = ({ foundCountries, hasEnded, showMissingCountries }: MapProps
   <section className="card map-card">
     <h2>World Map</h2>
     <div className="map-container">
-      <ComposableMap projectionConfig={{ scale: 150 }}>
+      <ComposableMap
+        width={1000}
+        height={380}
+        projectionConfig={{
+          scale: 175,
+          translate: [500, 190]
+        }}
+      >
         <Geographies geography={GEO_URL}>
           {({ geographies }: { geographies: any[] }) =>
             geographies

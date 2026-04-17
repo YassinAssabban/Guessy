@@ -121,16 +121,17 @@ button:disabled {
 
 .map-container {
   width: 100%;
-  overflow: auto;
+  overflow: hidden;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
   background: linear-gradient(180deg, #0ea5e9 0%, #2563eb 100%);
 }
 
 svg {
+  display: block;
   width: 100%;
   height: auto;
-  min-height: 360px;
+  min-height: 0;
 }
 
 @media (max-width: 900px) {
