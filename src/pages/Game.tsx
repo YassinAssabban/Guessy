@@ -13,19 +13,20 @@ export const Game = () => {
     remainingSeconds,
     status,
     totalCountries,
-    start,
+    isNoTimeMode,
+    pausesRemaining,
     submit,
     tickTimer,
     revealAll,
     reset,
+    startTimed,
+    startNoTime,
+    enableNoTimeMode,
+    togglePause,
     revealMissingCountries,
     showMissingCountries,
     lastAcceptedCountry
   } = useGameStore();
-
-  useEffect(() => {
-    start();
-  }, [start]);
 
   useEffect(() => {
     if (!isGameActive(status)) {
@@ -40,6 +41,10 @@ export const Game = () => {
   }, [status, tickTimer]);
 
   const hasEnded = status === 'completed' || status === 'gave_up';
+  const hasStarted = status !== 'idle';
+  const isPaused = status === 'paused';
+  const canPause = !isNoTimeMode && !hasEnded && (status === 'playing' || status === 'paused');
+  const shouldShowPauseButton = isPaused || pausesRemaining > 0;
 
   return (
     <main className="game-page">
@@ -50,36 +55,64 @@ export const Game = () => {
 
       <section className="top-grid">
         <Score score={score} total={totalCountries} progress={progress} />
-        <Timer remainingSeconds={remainingSeconds} />
+        <Timer remainingSeconds={remainingSeconds} isNoTimeMode={isNoTimeMode} />
       </section>
 
       <section className="card controls-card">
-        <Input disabled={hasEnded} onSubmitGuess={submit} />
+        <Input disabled={!isGameActive(status)} onSubmitGuess={submit} />
+
+        {!hasStarted && (
+          <div className="buttons-row">
+            <button onClick={startTimed}>Start</button>
+            <button className="secondary" onClick={startNoTime}>
+              Start no time
+            </button>
+          </div>
+        )}
+
+        {hasStarted && !hasEnded && (
+          <div className="buttons-row">
+            {canPause && shouldShowPauseButton && (
+              <button className="secondary" onClick={togglePause}>
+                {isPaused ? 'Resume' : `Pause (${pausesRemaining} restantes)`}
+              </button>
+            )}
+            {!isNoTimeMode && (
+              <button className="secondary" onClick={enableNoTimeMode}>
+                Passer en mode no time
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="buttons-row">
-          <button className="secondary" onClick={revealAll} disabled={hasEnded}>
+          <button className="secondary" onClick={revealAll} disabled={hasEnded || status === 'idle'}>
             Give up
           </button>
           <button className="secondary" onClick={reset}>
             Reset
           </button>
         </div>
-          {hasEnded && foundCountries.size < totalCountries && !showMissingCountries && (
-            <button className="secondary" onClick={revealMissingCountries}>
-              Afficher les pays non trouvés
-            </button>
-          )}
+
+        {hasEnded && foundCountries.size < totalCountries && !showMissingCountries && (
+          <button className="secondary" onClick={revealMissingCountries}>
+            Afficher les pays non trouvés
+          </button>
+        )}
+
         <p className="feedback">
-          {lastAcceptedCountry ? `✅ ${lastAcceptedCountry} accepted` : 'Start typing to guess countries.'}
+          {status === 'idle'
+            ? 'Click Start to begin.'
+            : lastAcceptedCountry
+              ? `✅ ${lastAcceptedCountry} accepted`
+              : 'Start typing to guess countries.'}
         </p>
+        {status === 'paused' && <p className="feedback">⏸️ Game paused.</p>}
         {status === 'completed' && <p className="feedback">⏰ Time is up or all countries found.</p>}
         {status === 'gave_up' && <p className="feedback">🏳️ All countries have been revealed.</p>}
       </section>
 
-      <Map
-        foundCountries={foundCountries}
-        hasEnded={hasEnded}
-        showMissingCountries={showMissingCountries}
-      />
+      <Map foundCountries={foundCountries} hasEnded={hasEnded} showMissingCountries={showMissingCountries} />
     </main>
   );
 };

@@ -3,8 +3,9 @@ import { calculateProgressPercentage, calculateScore } from './scoring';
 import { createCountryLookup, type CountryLookup, validateCountryGuess } from './validator';
 
 export const GAME_DURATION_SECONDS = 15 * 60;
+export const MAX_PAUSES = 3;
 
-export type GameStatus = 'idle' | 'playing' | 'completed' | 'gave_up';
+export type GameStatus = 'idle' | 'playing' | 'paused' | 'completed' | 'gave_up';
 
 export type GameSnapshot = {
   foundCountries: Set<string>;
@@ -12,6 +13,8 @@ export type GameSnapshot = {
   progress: number;
   remainingSeconds: number;
   status: GameStatus;
+  isNoTimeMode: boolean;
+  pausesUsed: number;
 };
 
 export type GuessResult = {
@@ -32,13 +35,47 @@ export const createInitialSnapshot = (): GameSnapshot => ({
   score: 0,
   progress: 0,
   remainingSeconds: GAME_DURATION_SECONDS,
-  status: 'idle'
+  status: 'idle',
+  isNoTimeMode: false,
+  pausesUsed: 0
 });
 
-export const startGame = (snapshot: GameSnapshot): GameSnapshot => ({
+export const startGame = (snapshot: GameSnapshot, noTimeMode = false): GameSnapshot => ({
   ...snapshot,
-  status: 'playing'
+  status: 'playing',
+  isNoTimeMode: noTimeMode,
+  pausesUsed: 0,
+  remainingSeconds: noTimeMode ? snapshot.remainingSeconds : GAME_DURATION_SECONDS
 });
+
+export const setNoTimeMode = (snapshot: GameSnapshot): GameSnapshot => ({
+  ...snapshot,
+  isNoTimeMode: true,
+  status: snapshot.status === 'paused' ? 'playing' : snapshot.status
+});
+
+export const pauseGame = (snapshot: GameSnapshot): GameSnapshot => {
+  if (snapshot.status !== 'playing' || snapshot.isNoTimeMode || snapshot.pausesUsed >= MAX_PAUSES) {
+    return snapshot;
+  }
+
+  return {
+    ...snapshot,
+    status: 'paused',
+    pausesUsed: snapshot.pausesUsed + 1
+  };
+};
+
+export const resumeGame = (snapshot: GameSnapshot): GameSnapshot => {
+  if (snapshot.status !== 'paused') {
+    return snapshot;
+  }
+
+  return {
+    ...snapshot,
+    status: 'playing'
+  };
+};
 
 export const submitGuess = (
   guess: string,
@@ -80,7 +117,7 @@ export const submitGuess = (
 };
 
 export const tick = (snapshot: GameSnapshot): GameSnapshot => {
-  if (snapshot.status !== 'playing') {
+  if (snapshot.status !== 'playing' || snapshot.isNoTimeMode) {
     return snapshot;
   }
 

@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import {
+  MAX_PAUSES,
   createGameContext,
   createInitialSnapshot,
   giveUp,
+  pauseGame,
+  resumeGame,
+  setNoTimeMode,
   startGame,
   submitGuess,
   tick,
@@ -17,7 +21,11 @@ type GameStore = GameSnapshot & {
   totalCountries: number;
   lastAcceptedCountry: string | null;
   showMissingCountries: boolean;
-  start: () => void;
+  pausesRemaining: number;
+  startTimed: () => void;
+  startNoTime: () => void;
+  enableNoTimeMode: () => void;
+  togglePause: () => void;
   submit: (guess: string) => boolean;
   tickTimer: () => void;
   revealAll: () => void;
@@ -32,7 +40,43 @@ export const useGameStore = create<GameStore>((set) => ({
   totalCountries: TOTAL_COUNTRIES,
   lastAcceptedCountry: null,
   showMissingCountries: false,
-  start: () => set((state) => ({ ...startGame(state), lastAcceptedCountry: null, showMissingCountries: false })),
+  pausesRemaining: MAX_PAUSES,
+  startTimed: () =>
+    set((state) => {
+      const nextSnapshot = startGame(state, false);
+      return {
+        ...nextSnapshot,
+        lastAcceptedCountry: null,
+        showMissingCountries: false,
+        pausesRemaining: MAX_PAUSES - nextSnapshot.pausesUsed
+      };
+    }),
+  startNoTime: () =>
+    set((state) => {
+      const nextSnapshot = startGame(state, true);
+      return {
+        ...nextSnapshot,
+        lastAcceptedCountry: null,
+        showMissingCountries: false,
+        pausesRemaining: MAX_PAUSES
+      };
+    }),
+  enableNoTimeMode: () =>
+    set((state) => {
+      const nextSnapshot = setNoTimeMode(state);
+      return {
+        ...nextSnapshot,
+        pausesRemaining: MAX_PAUSES - nextSnapshot.pausesUsed
+      };
+    }),
+  togglePause: () =>
+    set((state) => {
+      const nextSnapshot = state.status === 'paused' ? resumeGame(state) : pauseGame(state);
+      return {
+        ...nextSnapshot,
+        pausesRemaining: MAX_PAUSES - nextSnapshot.pausesUsed
+      };
+    }),
   submit: (guess) => {
     let accepted = false;
 
@@ -42,7 +86,8 @@ export const useGameStore = create<GameStore>((set) => ({
 
       return {
         ...snapshot,
-        lastAcceptedCountry: result.countryName
+        lastAcceptedCountry: result.countryName,
+        pausesRemaining: MAX_PAUSES - snapshot.pausesUsed
       };
     });
 
@@ -57,17 +102,24 @@ export const useGameStore = create<GameStore>((set) => ({
       return {
         ...nextSnapshot,
         lastAcceptedCountry: state.lastAcceptedCountry,
-        showMissingCountries: shouldRevealMissing ? true : state.showMissingCountries
+        showMissingCountries: shouldRevealMissing ? true : state.showMissingCountries,
+        pausesRemaining: MAX_PAUSES - nextSnapshot.pausesUsed
       };
     }),
-  revealAll: () => set((state) => ({ ...giveUp(state), showMissingCountries: true })),
+  revealAll: () =>
+    set((state) => ({
+      ...giveUp(state),
+      showMissingCountries: true,
+      pausesRemaining: MAX_PAUSES - state.pausesUsed
+    })),
   revealMissingCountries: () => set(() => ({ showMissingCountries: true })),
   reset: () =>
     set(() => ({
       ...createInitialSnapshot(),
       totalCountries: TOTAL_COUNTRIES,
       lastAcceptedCountry: null,
-      showMissingCountries: false
+      showMissingCountries: false,
+      pausesRemaining: MAX_PAUSES
     }))
 }));
 
