@@ -109,8 +109,14 @@ button:disabled {
   color: #334155;
 }
 
+
+.map-card {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
 .map-card h2 {
-  margin-top: 0;
+  margin: 0 0 0.35rem;
 }
 
 .map-container {
@@ -124,7 +130,7 @@ button:disabled {
 svg {
   width: 100%;
   height: auto;
-  min-height: 420px;
+  min-height: 360px;
 }
 
 @media (max-width: 900px) {
