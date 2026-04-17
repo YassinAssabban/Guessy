@@ -118,7 +118,7 @@ button:disabled {
   overflow: auto;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
-  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+  background: linear-gradient(180deg, #0ea5e9 0%, #2563eb 100%);
 }
 
 svg {
