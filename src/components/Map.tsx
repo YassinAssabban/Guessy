@@ -1,4 +1,6 @@
-import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
+import { useState } from 'react';
+import { geoCentroid } from 'd3-geo';
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import { createCountryLookup, normalizeCountryInput, resolveCountryName } from '../core/validator';
 
 type MapProps = {
@@ -25,6 +27,9 @@ type SmallCountryMarker = {
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json';
 
 const lookup = createCountryLookup();
+const DEFAULT_CENTER: [number, number] = [0, 15];
+const DEFAULT_ZOOM = 1;
+const COUNTRY_ZOOM = 2.35;
 
 const MAP_NAME_OVERRIDES: Record<string, string> = {
   [normalizeCountryInput('Dem. Rep. Congo')]: 'Democratic Republic of the Congo',
@@ -105,65 +110,95 @@ const resolveMapCountry = (properties: MapFeatureProperties): string | null => {
   return resolveCountryName(label, lookup);
 };
 
-export const Map = ({ foundCountries, hasEnded, showMissingCountries }: MapProps) => (
-  <section className="card map-card">
-    <h2>World Map</h2>
-    <div className="map-container">
-      <ComposableMap
-        width={900}
-        height={455}
-        projectionConfig={{
-          scale: 175,
-          translate: [500, 190]
-        }}
-      >
-        <Geographies geography={GEO_URL}>
-          {({ geographies }: { geographies: any[] }) =>
-            geographies
-              .filter((geo: any) => {
-                const properties = geo.properties as MapFeatureProperties;
-                const label = properties.NAME_EN ?? properties.NAME ?? properties.ADMIN ?? properties.name;
-                return normalizeCountryInput(String(label ?? '')) !== 'antarctica';
-              })
-              .map((geo: any) => {
-                const canonicalName = resolveMapCountry(geo.properties as MapFeatureProperties);
-                const isFound = canonicalName ? foundCountries.has(canonicalName) : false;
-                const isMissing = Boolean(hasEnded && showMissingCountries && canonicalName && !isFound);
+export const Map = ({ foundCountries, hasEnded, showMissingCountries }: MapProps) => {
+  const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
+  const [zoomedCountry, setZoomedCountry] = useState<string | null>(null);
 
-                return (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    style={{
-                      default: {
-                        fill: isFound ? '#22c55e' : isMissing ? '#ef4444' : '#e2e8f0',
-                        outline: 'none',
-                        stroke: '#94a3b8',
-                        strokeWidth: 0.45
-                      },
-                      hover: {
-                        fill: isFound ? '#16a34a' : isMissing ? '#dc2626' : '#cbd5e1',
-                        outline: 'none'
-                      },
-                      pressed: {
-                        fill: isFound ? '#15803d' : isMissing ? '#b91c1c' : '#94a3b8',
-                        outline: 'none'
-                      }
-                    }}
-                  />
-                );
-              })
-          }
-        </Geographies>
+  const handleCountryClick = (geo: any, canonicalName: string | null) => {
+    if (!canonicalName) {
+      return;
+    }
 
-        {hasEnded &&
-          showMissingCountries &&
-          SMALL_COUNTRY_MARKERS.filter((marker) => !foundCountries.has(marker.country)).map((marker) => (
-            <Marker key={marker.country} coordinates={marker.coordinates}>
-              <circle r={3.8} fill="#ef4444" stroke="#b91c1c" strokeWidth={1.2} />
-            </Marker>
-          ))}
-      </ComposableMap>
-    </div>
-  </section>
-);
+    if (zoomedCountry === canonicalName) {
+      setZoomedCountry(null);
+      setCenter(DEFAULT_CENTER);
+      return;
+    }
+
+    const [longitude, latitude] = geoCentroid(geo as any) as [number, number];
+    setCenter([longitude, latitude]);
+    setZoomedCountry(canonicalName);
+  };
+
+  return (
+    <section className="card map-card">
+      <h2>World Map</h2>
+      <div className="map-container">
+        <ComposableMap
+          width={900}
+          height={455}
+          projectionConfig={{
+            scale: 175,
+            translate: [500, 190]
+          }}
+        >
+          <ZoomableGroup
+            center={center}
+            zoom={zoomedCountry ? COUNTRY_ZOOM : DEFAULT_ZOOM}
+            disablePanning
+            disableZooming
+          >
+            <Geographies geography={GEO_URL}>
+              {({ geographies }: { geographies: any[] }) =>
+                geographies
+                  .filter((geo: any) => {
+                    const properties = geo.properties as MapFeatureProperties;
+                    const label = properties.NAME_EN ?? properties.NAME ?? properties.ADMIN ?? properties.name;
+                    return normalizeCountryInput(String(label ?? '')) !== 'antarctica';
+                  })
+                  .map((geo: any) => {
+                    const canonicalName = resolveMapCountry(geo.properties as MapFeatureProperties);
+                    const isFound = canonicalName ? foundCountries.has(canonicalName) : false;
+                    const isMissing = Boolean(hasEnded && showMissingCountries && canonicalName && !isFound);
+
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        onClick={() => handleCountryClick(geo, canonicalName)}
+                        style={{
+                          default: {
+                            fill: isFound ? '#22c55e' : isMissing ? '#ef4444' : '#e2e8f0',
+                            outline: 'none',
+                            stroke: '#94a3b8',
+                            strokeWidth: 0.45,
+                            cursor: canonicalName ? 'zoom-in' : 'default'
+                          },
+                          hover: {
+                            fill: isFound ? '#16a34a' : isMissing ? '#dc2626' : '#cbd5e1',
+                            outline: 'none'
+                          },
+                          pressed: {
+                            fill: isFound ? '#15803d' : isMissing ? '#b91c1c' : '#94a3b8',
+                            outline: 'none'
+                          }
+                        }}
+                      />
+                    );
+                  })
+              }
+            </Geographies>
+
+            {hasEnded &&
+              showMissingCountries &&
+              SMALL_COUNTRY_MARKERS.filter((marker) => !foundCountries.has(marker.country)).map((marker) => (
+                <Marker key={marker.country} coordinates={marker.coordinates}>
+                  <circle r={3.8} fill="#ef4444" stroke="#b91c1c" strokeWidth={1.2} />
+                </Marker>
+              ))}
+          </ZoomableGroup>
+        </ComposableMap>
+      </div>
+    </section>
+  );
+};
