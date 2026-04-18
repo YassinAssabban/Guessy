@@ -142,7 +142,12 @@ export const Map = ({ foundCountries, hasEnded, showMissingCountries }: MapProps
             translate: [500, 190]
           }}
         >
-          <ZoomableGroup center={center} zoom={zoomedCountry ? COUNTRY_ZOOM : DEFAULT_ZOOM}>
+          <ZoomableGroup
+            center={center}
+            zoom={zoomedCountry ? COUNTRY_ZOOM : DEFAULT_ZOOM}
+            disablePanning
+            disableZooming
+          >
             <Geographies geography={GEO_URL}>
               {({ geographies }: { geographies: any[] }) =>
                 geographies
