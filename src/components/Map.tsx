@@ -110,8 +110,8 @@ export const Map = ({ foundCountries, hasEnded, showMissingCountries }: MapProps
     <h2>World Map</h2>
     <div className="map-container">
       <ComposableMap
-        width={1000}
-        height={380}
+        width={900}
+        height={455}
         projectionConfig={{
           scale: 175,
           translate: [500, 190]
