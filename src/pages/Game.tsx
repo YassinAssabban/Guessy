@@ -45,28 +45,40 @@ export const Game = () => {
   const isPaused = status === 'paused';
   const canPause = !isNoTimeMode && !hasEnded && (status === 'playing' || status === 'paused');
   const shouldShowPauseButton = isPaused || pausesRemaining > 0;
+  const statusLabel =
+    status === 'idle'
+      ? 'Waiting to start'
+      : status === 'playing'
+        ? 'Live game'
+        : status === 'paused'
+          ? 'Paused'
+          : status === 'completed'
+            ? 'Completed'
+            : 'Revealed';
 
   return (
     <main className="game-page">
-      <header className="app-header card">
-        <div>
-          <p className="brand">Quessy</p>
-          <h1>Countries of the World</h1>
-          <p className="subtitle">Professional quiz mode #1 — ready to expand to new game modes.</p>
+      <header className="site-header">
+        <div className="site-branding">
+          <p className="brand-kicker">QUIZZY PLATFORM</p>
+          <h1>Quessy</h1>
+          <p>Global quiz platform crafted for millions of players.</p>
         </div>
-        <span className="mode-badge">Live Quiz</span>
+        <div className="site-nav">
+          <span className="pill">Multiplayer ready</span>
+          <span className="pill">Global leaderboard (soon)</span>
+        </div>
       </header>
 
-      <section className="card quiz-selector">
-        <p className="selector-label">Quiz modes</p>
-        <div className="selector-tabs">
-          <button className="tab active">Countries of the World</button>
-          <button className="tab" disabled>
-            Coming soon: Capitals
-          </button>
-          <button className="tab" disabled>
-            Coming soon: Flags
-          </button>
+      <section className="hero card">
+        <div>
+          <p className="hero-kicker">Mode #01</p>
+          <h2>Countries of the World</h2>
+          <p className="hero-subtitle">Name every country as fast and accurately as possible.</p>
+        </div>
+        <div className="hero-meta">
+          <span className="mode-badge">{statusLabel}</span>
+          <span className="mode-badge ghost">{isNoTimeMode ? 'No time mode' : 'Timed mode'}</span>
         </div>
       </section>
 
@@ -82,7 +94,7 @@ export const Game = () => {
           <div className="buttons-row">
             <button onClick={startTimed}>Start</button>
             <button className="secondary" onClick={startNoTime}>
-              Start no time
+              Start in no time mode
             </button>
           </div>
         )}
